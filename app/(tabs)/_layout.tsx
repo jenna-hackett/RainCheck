@@ -1,5 +1,5 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
-import EvilIcons from "@expo/vector-icons/EvilIcons";
+import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { Tabs } from "expo-router";
@@ -28,7 +28,7 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <EvilIcons name="search" size={24} color={color} />
+            <Feather name="search" size={24} color={color} />
           ),
         }}
       />
