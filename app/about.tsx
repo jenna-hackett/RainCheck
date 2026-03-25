@@ -6,3 +6,19 @@ They should only:
 - pass props
 --- Everything else (API, storage, formatting) lives in src/.
 */
+
+import { Text, View } from "react-native";
+
+export default function About() {
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Text>VERITY SCREEN</Text>
+    </View>
+  );
+}
