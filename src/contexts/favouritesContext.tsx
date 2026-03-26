@@ -11,8 +11,8 @@ export type FavouriteLocation = {
 type FavouritesContextType = {
   favourites: FavouriteLocation[];
   addFavourite: (loc: FavouriteLocation) => void;
-  removeFavourite: (city: string) => void;
-  isFavourite: (city: string) => boolean;
+  removeFavourite: (city: string, country: string) => void;
+  isFavourite: (city: string, country: string) => boolean;
 };
 
 export const FavouritesContext = createContext<FavouritesContextType | null>(
@@ -55,13 +55,15 @@ export function FavouritesProvider({
   };
 
   // Remove a favourite
-  const removeFavourite = (city: string) => {
-    setFavourites((prev) => prev.filter((f) => f.city !== city));
+  const removeFavourite = (city: string, country: string) => {
+    setFavourites((prev) =>
+      prev.filter((f) => !(f.city === city && f.country === country)),
+    );
   };
 
   // Check if favourite
-  const isFavourite = (city: string) => {
-    return favourites.some((f) => f.city === city);
+  const isFavourite = (city: string, country: string) => {
+    return favourites.some((f) => f.city === city && f.country === country);
   };
 
   return (
