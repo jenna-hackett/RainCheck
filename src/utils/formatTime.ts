@@ -1,7 +1,3 @@
-/*
-Functions with no side effects.
-formatTime(clockFormat, date)
-*/
 export function formatTime(dateString: string, clockFormat: "12h" | "24h") {
   const date = new Date(dateString);
 

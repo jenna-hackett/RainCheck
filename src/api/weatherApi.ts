@@ -1,12 +1,3 @@
-/* 
-All API Logic
-
-TO DO:
-- build params
-- call fetchWeatherApi
-- parse the response
-- return a clean object
-*/
 import { fetchWeatherApi } from "openmeteo";
 
 export type WeatherData = {
