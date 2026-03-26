@@ -8,15 +8,16 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarShowLabel: false,
-        tabBarActiveTintColor: "black",
+        tabBarActiveTintColor: "blue",
         tabBarInactiveTintColor: "gray",
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "bold" },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           headerShown: false,
+          tabBarLabel: "HOME",
           tabBarIcon: ({ color }) => (
             <AntDesign name="home" size={24} color={color} />
           ),
@@ -27,6 +28,7 @@ export default function TabLayout() {
         name="search"
         options={{
           headerShown: false,
+          tabBarLabel: "SEARCH",
           tabBarIcon: ({ color }) => (
             <Feather name="search" size={24} color={color} />
           ),
@@ -37,6 +39,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           headerShown: false,
+          tabBarLabel: "SETTINGS",
           tabBarIcon: ({ color }) => (
             <Ionicons name="settings-outline" size={24} color={color} />
           ),
