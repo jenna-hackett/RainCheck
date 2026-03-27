@@ -1,50 +1,38 @@
-# Welcome to your Expo app 👋
+# RainCheck 🌦️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**A Local and Global Weather Application**
 
-## Get started
+RainCheck is a mobile weather application built with **React Native** and **Expo**. It provides users with real-time, high-fidelity weather data using a clean, intuitive interface. Whether checking the local forecast via GPS or searching for conditions halfway across the globe, RainCheck ensures users are never caught without an umbrella.
 
-1. Install dependencies
+## 🚀 Features
 
-   ```bash
-   npm install
-   ```
+- **Location-Based Weather:** Automatically detects the users current location via Geolocation API to show immediate local conditions.
+- **Global Search:** Find weather data for any city worldwide using the Open-Meteo Geocoding API.
+- **Favorites Management:** Users can save their most-searched cities to "My Weather Locations" for quick access with real-time temperature updates.
+- **Dynamic Forecasts:** View current conditions, hourly breakdowns, and an extended 7-day forecast.
+- **Personalized Settings:** Toggle between Celsius and Fahrenheit, 12h or 24h clock formats, and Light/Dark modes.
+- **Offline Fallback:** Remembers the last searched city and unit preferences using **AsyncStorage** if GPS is unavailable.
 
-2. Start the app
+## 🛠️ Tech Stack
 
-   ```bash
-   npx expo start
-   ```
+- **Framework:** React Native (Expo)
+- **Language:** TypeScript
+- **Navigation:** Expo Router (File-based Tab Navigation)
+- **APIs:** Open-Meteo (Weather & Geocoding)
+- **Storage:** AsyncStorage for persistent user preferences and favorites list.
 
-In the output, you'll find options to open the app in a
+## 📁 Project Structure
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+RainCheck/
+├── app/                  # Expo Router directory (File-based routing)
+│   ├── (tabs)/           # Main Tab Navigator (_layout, Home(index), Search, Settings)
+│   └── _layout.tsx       # Root layout with Context Providers
+|   └── about.tsx         # Page containing developer information (Stack Navigation from settings page)
+├── src/
+│   ├── api/              # weatherApi, geocodeApi and location logic
+│   ├── contexts/         # Favourites and Settings Context providers
+|   ├── components/       # Components folder
+│   ├── utils/            # Temperature and Time formatting helpers
+└── assets/               # App icons and splash screens
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
