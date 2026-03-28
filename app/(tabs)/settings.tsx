@@ -44,7 +44,9 @@ export default function Settings() {
     }
   }
 
-  function handleTemp() {}
+  function handleTemp(value: boolean) {
+    setUnit(value ? "celsius" : "fahrenheit");
+  }
 
   function handleClock() {}
 
@@ -91,9 +93,9 @@ export default function Settings() {
               <Text style={styles.label}>Temperature</Text>
               <View style={styles.switch}>
                 <Text style={styles.label}>
-                  {selectedLocation ? "°C" : "°F"}
+                  {unit === "celsius" ? "°C" : "°F"}
                 </Text>
-                <Switch value={!!selectedLocation} onValueChange={handleTemp} />
+                <Switch value={unit === "celsius"} onValueChange={handleTemp} />
               </View>
             </View>
             <View
