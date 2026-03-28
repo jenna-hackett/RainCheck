@@ -1,15 +1,15 @@
-export function formatTime(dateString: string, clockFormat: "12h" | "24h") {
-  const date = new Date(dateString);
+export function formatTime(date: Date | string, clockFormat: "12h" | "24h") {
+  const d = typeof date === "string" ? new Date(date) : date;
 
   if (clockFormat === "24h") {
-    return date.toLocaleTimeString("en-CA", {
+    return d.toLocaleTimeString("en-CA", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
     });
   }
 
-  return date.toLocaleTimeString("en-US", {
+  return d.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,

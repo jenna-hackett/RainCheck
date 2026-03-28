@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,6 +14,7 @@ import { geocodeCity, GeocodeResult } from "../../src/api/geocodeApi";
 import { getWeather } from "../../src/api/weatherApi";
 import { useFavourites } from "../../src/contexts/favouritesContext";
 import { useSettings } from "../../src/contexts/settingsContext";
+import { weatherThemes } from "../../src/theme/theme";
 import { formatTemp } from "../../src/utils/formatTemperature";
 
 type SearchResult = GeocodeResult & { temp?: number };
@@ -21,34 +23,30 @@ export default function SearchScreen() {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // New state to hold weather for the "My Locations" section
   const [favWeather, setFavWeather] = useState<Record<string, number>>({});
 
-  const { unit } = useSettings()!;
+  const { unit, weatherCondition, setSelectedLocation } = useSettings();
   const { favourites, addFavourite, removeFavourite, isFavourite } =
-    useFavourites()!;
+    useFavourites();
 
-  // Fetch weather for favourites whenever the favourites list or unit changes
+  const theme = weatherThemes[weatherCondition];
+
   useEffect(() => {
     const fetchFavWeather = async () => {
       const weatherMap: Record<string, number> = {};
-
       await Promise.all(
         favourites.map(async (fav) => {
           const data = await getWeather(fav.latitude, fav.longitude, unit);
           if (data) {
-            // We use a key of city+country to match our uniqueness logic
-            weatherMap[`${fav.city}-${fav.country}`] = data.current.temperature;
+            weatherMap[`${fav.latitude}-${fav.longitude}`] =
+              data.current.temperature;
           }
         }),
       );
       setFavWeather(weatherMap);
     };
 
-    if (favourites.length > 0) {
-      fetchFavWeather();
-    }
+    if (favourites.length > 0) fetchFavWeather();
   }, [favourites, unit]);
 
   const handleSearch = async () => {
@@ -67,11 +65,26 @@ export default function SearchScreen() {
     setLoading(false);
   };
 
+  const handleSelectLocation = (item: GeocodeResult) => {
+    setSelectedLocation(item);
+    router.push("/(tabs)");
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <View style={styles.searchBar}>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              borderColor: theme.border,
+              color: theme.text,
+              backgroundColor: theme.cardBackground,
+            },
+          ]}
+          placeholderTextColor={theme.subtext}
           placeholder="Search for a city..."
           value={query}
           onChangeText={(text) => {
@@ -80,32 +93,46 @@ export default function SearchScreen() {
           }}
           onSubmitEditing={handleSearch}
         />
-        <TouchableOpacity style={styles.button} onPress={handleSearch}>
-          <Text style={styles.buttonText}>Search</Text>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            {
+              backgroundColor: theme.cardBackground,
+              borderColor: theme.border,
+            },
+          ]}
+          onPress={handleSearch}
+        >
+          <Text style={[styles.buttonText, { color: theme.text }]}>Search</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Search Results Section */}
       {loading && (
         <ActivityIndicator
           size="large"
-          color="#007AFF"
+          color={theme.text}
           style={{ marginVertical: 10 }}
         />
       )}
 
       {searchResults.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Search Results</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Search Results
+          </Text>
           {searchResults.map((item, index) => {
-            const isAdded = isFavourite(item.city, item.country);
+            const isAdded = isFavourite(item.latitude, item.longitude);
             return (
-              <View key={`search-${index}`} style={styles.resultItem}>
+              <TouchableOpacity
+                key={`search-${index}`}
+                style={[styles.resultItem, { borderBottomColor: theme.border }]}
+                onPress={() => handleSelectLocation(item)}
+              >
                 <View style={styles.info}>
-                  <Text style={styles.cityName}>
+                  <Text style={[styles.cityName, { color: theme.text }]}>
                     {item.city}, {item.country}
                   </Text>
-                  <Text style={styles.temp}>
+                  <Text style={[styles.temp, { color: theme.subtext }]}>
                     {item.temp !== undefined
                       ? formatTemp(item.temp, unit)
                       : "--"}
@@ -114,7 +141,7 @@ export default function SearchScreen() {
                 <TouchableOpacity
                   onPress={() =>
                     isAdded
-                      ? removeFavourite(item.city, item.country)
+                      ? removeFavourite(item.latitude, item.longitude)
                       : addFavourite(item)
                   }
                   style={styles.favButton}
@@ -128,41 +155,47 @@ export default function SearchScreen() {
                     {isAdded ? "–" : "+"}
                   </Text>
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
       )}
 
-      {/* My Weather Locations Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>My Weather Locations</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          My Weather Locations
+        </Text>
         {favourites.length === 0 ? (
-          <Text style={styles.emptyText}>No saved locations yet.</Text>
+          <Text style={[styles.emptyText, { color: theme.subtext }]}>
+            No saved locations yet.
+          </Text>
         ) : (
           favourites.map((item, index) => {
-            const tempKey = `${item.city}-${item.country}`;
+            const tempKey = `${item.latitude}-${item.longitude}`;
             const currentTemp = favWeather[tempKey];
-
             return (
-              <View key={`fav-${index}`} style={styles.resultItem}>
+              <TouchableOpacity
+                key={`fav-${index}`}
+                style={[styles.resultItem, { borderBottomColor: theme.border }]}
+                onPress={() => handleSelectLocation(item)}
+              >
                 <View style={styles.info}>
-                  <Text style={styles.cityName}>
+                  <Text style={[styles.cityName, { color: theme.text }]}>
                     {item.city}, {item.country}
                   </Text>
-                  <Text style={styles.temp}>
+                  <Text style={[styles.temp, { color: theme.subtext }]}>
                     {currentTemp !== undefined
                       ? formatTemp(currentTemp, unit)
                       : "Loading..."}
                   </Text>
                 </View>
                 <TouchableOpacity
-                  onPress={() => removeFavourite(item.city, item.country)}
+                  onPress={() => removeFavourite(item.latitude, item.longitude)}
                   style={styles.favButton}
                 >
                   <Text style={[styles.symbol, { color: "#FF3B30" }]}>–</Text>
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             );
           })
         )}
@@ -176,7 +209,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingTop: 50,
-    backgroundColor: "#fff",
   },
   searchBar: {
     flexDirection: "row",
@@ -185,20 +217,18 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#ccc",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
   },
   button: {
     marginLeft: 10,
-    backgroundColor: "#007AFF",
+    borderWidth: 1,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
     justifyContent: "center",
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   section: {
     marginBottom: 30,
@@ -207,13 +237,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#333",
   },
   resultItem: {
     flexDirection: "row",
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
     alignItems: "center",
   },
   info: {
@@ -225,7 +253,7 @@ const styles = StyleSheet.create({
   },
   temp: {
     fontSize: 14,
-    color: "#666",
+    marginTop: 2,
   },
   favButton: {
     width: 50,
@@ -239,7 +267,6 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
   emptyText: {
-    color: "#999",
     fontStyle: "italic",
   },
 });

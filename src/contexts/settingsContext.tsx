@@ -1,80 +1,75 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useColorScheme } from "react-native";
+import { GeocodeResult } from "../api/geocodeApi";
+import { WeatherCondition } from "../theme/theme";
 
 type Unit = "celsius" | "fahrenheit";
 type ClockFormat = "12h" | "24h";
-type ThemeName = "light" | "dark";
 
 type SettingsContextType = {
   unit: Unit;
-  toggleUnit: () => void;
-
   clockFormat: ClockFormat;
-  toggleClockFormat: () => void;
-
-  themeName: ThemeName;
-  toggleTheme: () => void;
-
-  useCurrentLocation: boolean;
-  toggleUseCurrentLocation: () => void;
+  weatherCondition: WeatherCondition;
+  selectedLocation: GeocodeResult | null;
+  setUnit: (unit: Unit) => void;
+  setClockFormat: (format: ClockFormat) => void;
+  setWeatherCondition: (condition: WeatherCondition) => void;
+  setSelectedLocation: (location: GeocodeResult | null) => void;
 };
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [unit, setUnit] = useState<Unit>("celsius");
-  const [clockFormat, setClockFormat] = useState<ClockFormat>("12h");
-  const [themeName, setThemeName] = useState<ThemeName>("light");
-  const [useCurrentLocation, setUseCurrentLocation] = useState(true);
+  const systemScheme = useColorScheme();
+  const defaultCondition = (
+    (systemScheme ?? "light") === "dark" ? "clearNight" : "sunny"
+  ) as WeatherCondition;
+
+  const [unit, setUnitState] = useState<Unit>("celsius");
+  const [clockFormat, setClockFormatState] = useState<ClockFormat>("24h");
+  const [weatherCondition, setWeatherCondition] =
+    useState<WeatherCondition>(defaultCondition);
+  const [selectedLocation, setSelectedLocation] =
+    useState<GeocodeResult | null>(null);
 
   useEffect(() => {
-    async function load() {
+    async function loadSettings() {
       try {
-        const savedUnit = await AsyncStorage.getItem("unit");
-        const savedClock = await AsyncStorage.getItem("clockFormat");
-        const savedTheme = await AsyncStorage.getItem("themeName");
-        const savedLocation = await AsyncStorage.getItem("useCurrentLocation");
-
-        if (savedUnit) setUnit(savedUnit as Unit);
-        if (savedClock) setClockFormat(savedClock as ClockFormat);
-        if (savedTheme) setThemeName(savedTheme as ThemeName);
-        if (savedLocation) setUseCurrentLocation(savedLocation === "true");
+        const [savedUnit, savedClock] = await AsyncStorage.multiGet([
+          "unit",
+          "clockFormat",
+        ]);
+        if (savedUnit[1]) setUnitState(savedUnit[1] as Unit);
+        if (savedClock[1]) setClockFormatState(savedClock[1] as ClockFormat);
       } catch (error) {
-        console.error(error);
+        console.error("Failed to load settings:", error);
       }
     }
-    load();
+    loadSettings();
   }, []);
 
-  useEffect(() => {
+  function setUnit(unit: Unit) {
+    setUnitState(unit);
     AsyncStorage.setItem("unit", unit);
-    AsyncStorage.setItem("clockFormat", clockFormat);
-    AsyncStorage.setItem("themeName", themeName);
-    AsyncStorage.setItem("useCurrentLocation", String(useCurrentLocation));
-  }, [unit, clockFormat, themeName, useCurrentLocation]);
+  }
 
-  const toggleUnit = () =>
-    setUnit((prev) => (prev === "celsius" ? "fahrenheit" : "celsius"));
-
-  const toggleClockFormat = () =>
-    setClockFormat((prev) => (prev === "24h" ? "12h" : "24h"));
-
-  const toggleTheme = () =>
-    setThemeName((prev) => (prev === "light" ? "dark" : "light"));
-
-  const toggleUseCurrentLocation = () => setUseCurrentLocation((prev) => !prev);
+  function setClockFormat(format: ClockFormat) {
+    setClockFormatState(format);
+    AsyncStorage.setItem("clockFormat", format);
+  }
 
   return (
     <SettingsContext.Provider
       value={{
         unit,
-        toggleUnit,
         clockFormat,
-        toggleClockFormat,
-        themeName,
-        toggleTheme,
-        useCurrentLocation,
-        toggleUseCurrentLocation,
+        weatherCondition,
+        selectedLocation,
+        setUnit,
+        setClockFormat,
+        setWeatherCondition,
+        setSelectedLocation,
       }}
     >
       {children}
@@ -83,5 +78,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useSettings() {
-  return useContext(SettingsContext);
+  const context = useContext(SettingsContext);
+  if (!context)
+    throw new Error("useSettings must be used within SettingsProvider");
+  return context;
 }
