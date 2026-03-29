@@ -9,7 +9,15 @@ import { getCurrentLocation } from "@/src/api/location";
 import { useSettings } from "@/src/contexts/settingsContext";
 import { weatherThemes } from "@/src/theme/theme";
 import Entypo from "@expo/vector-icons/Entypo";
-import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import {
+  Linking,
+  Pressable,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Settings() {
@@ -22,6 +30,8 @@ export default function Settings() {
     setSelectedLocation,
     weatherCondition,
   } = useSettings();
+
+  const router = useRouter();
 
   const theme = weatherThemes[weatherCondition];
 
@@ -48,19 +58,26 @@ export default function Settings() {
     setUnit(value ? "celsius" : "fahrenheit");
   }
 
-  function handleClock() {}
+  function handleClock(value: boolean) {
+    setClockFormat(value ? "12h" : "24h");
+  }
+
+  function handleReport() {
+    Linking.openURL(
+      "mailto:aurorachoban@edu.sait.ca?subject=Report%20An%20Issue&body=Enter%20Your%20Issue%20Here",
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.page}>
-      <View style={{ backgroundColor: theme.background }}>
+    <SafeAreaView style={[styles.page, { backgroundColor: theme.background }]}>
+      <View>
         {/*this is the whole page*/}
         <View>
-          {" "}
           {/*this is the title*/}
           <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
         </View>
         <View>
-          <Text style={styles.subtitle}>Location</Text>{" "}
+          <Text style={styles.subtitle}>Location</Text>
           {/*this is location section*/}
           <View
             style={[
@@ -83,7 +100,7 @@ export default function Settings() {
         <View>
           {/*this is unit section*/}
           <View>
-            <Text style={styles.subtitle}>Unit</Text>{" "}
+            <Text style={styles.subtitle}>Unit</Text>
             <View
               style={[
                 styles.switchContainer,
@@ -107,10 +124,10 @@ export default function Settings() {
               <Text style={styles.label}>Clock</Text>
               <View style={styles.switch}>
                 <Text style={styles.label}>
-                  {selectedLocation ? "12H" : "24H"}
+                  {clockFormat === "12h" ? "12h" : "24h"}
                 </Text>
                 <Switch
-                  value={!!selectedLocation}
+                  value={clockFormat === "12h"}
                   onValueChange={handleClock}
                 />
               </View>
@@ -121,6 +138,7 @@ export default function Settings() {
           {/*this is support section*/}
           <Text style={styles.subtitle}>Support</Text>
           <Pressable
+            onPress={() => router.push("/about")}
             style={[
               styles.supportContainer,
               { backgroundColor: theme.cardBackground },
@@ -130,6 +148,7 @@ export default function Settings() {
             <Entypo name="chevron-right" size={24} color="black" />
           </Pressable>
           <Pressable
+            onPress={handleReport}
             style={[
               styles.supportContainer,
               { backgroundColor: theme.cardBackground },
@@ -148,6 +167,8 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: 20,
     paddingHorizontal: 20,
+    flexDirection: "column",
+    flex: 1,
   },
   title: {
     fontSize: 35,
