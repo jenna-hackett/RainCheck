@@ -77,7 +77,7 @@ export default function Settings() {
           <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
         </View>
         <View>
-          <Text style={styles.subtitle}>Location</Text>
+          <Text style={[styles.subtitle, { color: theme.text }]}>Location</Text>
           {/*this is location section*/}
           <View
             style={[
@@ -85,14 +85,18 @@ export default function Settings() {
               { backgroundColor: theme.cardBackground },
             ]}
           >
-            <Text style={styles.label}>Use Current Location</Text>
+            <Text style={[styles.label, { color: theme.text }]}>
+              Use Current Location
+            </Text>
             <View style={styles.switch}>
-              <Text style={styles.label}>
+              <Text style={[styles.label, { color: theme.text }]}>
                 {selectedLocation ? "Yes" : "No"}
               </Text>
               <Switch
                 value={!!selectedLocation}
                 onValueChange={handleLocation}
+                thumbColor="white"
+                trackColor={{ true: theme.text, false: theme.text }}
               />
             </View>
           </View>
@@ -100,19 +104,26 @@ export default function Settings() {
         <View>
           {/*this is unit section*/}
           <View>
-            <Text style={styles.subtitle}>Unit</Text>
+            <Text style={[styles.subtitle, { color: theme.text }]}>Unit</Text>
             <View
               style={[
                 styles.switchContainer,
                 { backgroundColor: theme.cardBackground },
               ]}
             >
-              <Text style={styles.label}>Temperature</Text>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Temperature
+              </Text>
               <View style={styles.switch}>
-                <Text style={styles.label}>
+                <Text style={[styles.label, { color: theme.text }]}>
                   {unit === "celsius" ? "°C" : "°F"}
                 </Text>
-                <Switch value={unit === "celsius"} onValueChange={handleTemp} />
+                <Switch
+                  value={unit === "celsius"}
+                  onValueChange={handleTemp}
+                  thumbColor="white"
+                  trackColor={{ true: theme.text, false: theme.text }}
+                />
               </View>
             </View>
             <View
@@ -121,14 +132,16 @@ export default function Settings() {
                 { backgroundColor: theme.cardBackground },
               ]}
             >
-              <Text style={styles.label}>Clock</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Clock</Text>
               <View style={styles.switch}>
-                <Text style={styles.label}>
+                <Text style={[styles.label, { color: theme.text }]}>
                   {clockFormat === "12h" ? "12h" : "24h"}
                 </Text>
                 <Switch
                   value={clockFormat === "12h"}
                   onValueChange={handleClock}
+                  thumbColor="white"
+                  trackColor={{ true: theme.text, false: theme.text }}
                 />
               </View>
             </View>
@@ -136,7 +149,7 @@ export default function Settings() {
         </View>
         <View>
           {/*this is support section*/}
-          <Text style={styles.subtitle}>Support</Text>
+          <Text style={[styles.subtitle, { color: theme.text }]}>Support</Text>
           <Pressable
             onPress={() => router.push("/about")}
             style={[
@@ -144,8 +157,8 @@ export default function Settings() {
               { backgroundColor: theme.cardBackground },
             ]}
           >
-            <Text style={styles.label}>About Us</Text>
-            <Entypo name="chevron-right" size={24} color="black" />
+            <Text style={[styles.label, { color: theme.text }]}>About Us</Text>
+            <Entypo name="chevron-right" size={24} color={theme.text} />
           </Pressable>
           <Pressable
             onPress={handleReport}
@@ -154,8 +167,10 @@ export default function Settings() {
               { backgroundColor: theme.cardBackground },
             ]}
           >
-            <Text style={styles.label}>Report An Issue</Text>
-            <Entypo name="chevron-right" size={24} color="black" />
+            <Text style={[styles.label, { color: theme.text }]}>
+              Report An Issue
+            </Text>
+            <Entypo name="chevron-right" size={24} color={theme.text} />
           </Pressable>
         </View>
       </View>

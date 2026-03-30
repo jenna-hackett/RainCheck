@@ -16,8 +16,8 @@ export default function About() {
         {/*whole page*/}
         <View>
           <Pressable onPress={() => router.back()} style={styles.header}>
-            <Entypo name="chevron-small-left" size={44} color="black" />
-            <Text style={styles.title}>About Us</Text>
+            <Entypo name="chevron-small-left" size={44} color={theme.text} />
+            <Text style={[styles.title, { color: theme.text }]}>About Us</Text>
           </Pressable>
         </View>
         <View style={[styles.card, { backgroundColor: theme.cardBackground }]}>
@@ -28,7 +28,8 @@ export default function About() {
             Mobile Application Development.
             {"\n\n"}See more of our work:
             {"\n"}
-            <Octicons name="dot-fill" size={14} color="black" /> Aurora Choban:{" "}
+            <Octicons name="dot-fill" size={14} color={theme.text} /> Aurora
+            Choban:{" "}
             <Text
               style={styles.link}
               onPress={() => Linking.openURL("https://github.com/aurorachoban")}
@@ -36,7 +37,8 @@ export default function About() {
               GitHub
             </Text>
             {"\n"}
-            <Octicons name="dot-fill" size={14} color="black" /> Jenna Hackett:{" "}
+            <Octicons name="dot-fill" size={14} color={theme.text} /> Jenna
+            Hackett:{" "}
             <Text
               style={styles.link}
               onPress={() =>
@@ -46,7 +48,8 @@ export default function About() {
               GitHub
             </Text>
             {"\n"}
-            <Octicons name="dot-fill" size={14} color="black" /> Verity Boyd:{" "}
+            <Octicons name="dot-fill" size={14} color={theme.text} /> Verity
+            Boyd:{" "}
             <Text
               style={styles.link}
               onPress={() => Linking.openURL("https://github.com/verityboyd")}
@@ -75,6 +78,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 35,
     paddingLeft: 5,
+    fontWeight: 700,
   },
   card: {
     borderRadius: 10,
@@ -86,7 +90,6 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   link: {
-    fontWeight: 500,
-    color: "blue",
+    fontWeight: 700,
   },
 });
