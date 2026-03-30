@@ -1,18 +1,13 @@
-/*
-- settings cards:
-TODO: add mailto link to issue pressable
-- add logic to unit and temp
-- add stack nav to about us page
-*/
-
-import { getCurrentLocation } from "@/src/api/location";
+import { getCurrentLocation, getLocationName } from "@/src/api/location";
 import { useSettings } from "@/src/contexts/settingsContext";
 import { weatherThemes } from "@/src/theme/theme";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import {
   Linking,
   Pressable,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -26,30 +21,42 @@ export default function Settings() {
     setUnit,
     clockFormat,
     setClockFormat,
-    selectedLocation,
     setSelectedLocation,
+    isGPSLocation,
+    setIsGPSLocation,
+    setGpsLocation,
     weatherCondition,
   } = useSettings();
 
   const router = useRouter();
-
   const theme = weatherThemes[weatherCondition];
+  const [locationLoading, setLocationLoading] = useState(false);
 
   async function handleLocation(value: boolean) {
     if (value) {
-      //toggle on (yes)
+      setLocationLoading(true);
       const coordinates = await getCurrentLocation();
       if (!coordinates) {
+        setLocationLoading(false);
         return;
       }
-      setSelectedLocation({
-        city: "Current Location",
+      const name = await getLocationName(
+        coordinates.latitude,
+        coordinates.longitude,
+      );
+      const gps = {
+        city: name,
         country: "",
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,
-      });
+      };
+      setIsGPSLocation(true);
+      setGpsLocation(gps);
+      setSelectedLocation(gps);
+      setLocationLoading(false);
     } else {
-      //toggle off (no)
+      setIsGPSLocation(false);
+      setGpsLocation(null);
       setSelectedLocation(null);
     }
   }
@@ -69,155 +76,175 @@ export default function Settings() {
   }
 
   return (
-    <SafeAreaView style={[styles.page, { backgroundColor: theme.background }]}>
-      <View>
-        {/*this is the whole page*/}
-        <View>
-          {/*this is the title*/}
-          <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
-        </View>
-        <View>
-          <Text style={[styles.subtitle, { color: theme.text }]}>Location</Text>
-          {/*this is location section*/}
-          <View
-            style={[
-              styles.switchContainer,
-              { backgroundColor: theme.cardBackground },
-            ]}
-          >
-            <Text style={[styles.label, { color: theme.text }]}>
+    <SafeAreaView
+      edges={["top", "bottom", "left", "right"]}
+      style={[styles.page, { backgroundColor: theme.background }]}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
+
+        {/* Location section */}
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          Location
+        </Text>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.cardBackground,
+              borderColor: theme.border,
+            },
+          ]}
+        >
+          <View style={styles.row}>
+            <Text style={[styles.rowLabel, { color: theme.text }]}>
               Use Current Location
             </Text>
-            <View style={styles.switch}>
-              <Text style={[styles.label, { color: theme.text }]}>
-                {selectedLocation ? "Yes" : "No"}
+            <View style={styles.rowRight}>
+              <Text style={[styles.rowValue, { color: theme.subtext }]}>
+                {isGPSLocation ? "On" : "Off"}
               </Text>
               <Switch
-                value={!!selectedLocation}
+                value={isGPSLocation}
                 onValueChange={handleLocation}
+                disabled={locationLoading}
                 thumbColor="white"
-                trackColor={{ true: theme.text, false: theme.text }}
+                trackColor={{ true: theme.subtext, false: theme.border }}
               />
             </View>
           </View>
         </View>
-        <View>
-          {/*this is unit section*/}
-          <View>
-            <Text style={[styles.subtitle, { color: theme.text }]}>Unit</Text>
-            <View
-              style={[
-                styles.switchContainer,
-                { backgroundColor: theme.cardBackground },
-              ]}
-            >
-              <Text style={[styles.label, { color: theme.text }]}>
-                Temperature
+
+        {/* Unit section */}
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>Unit</Text>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.cardBackground,
+              borderColor: theme.border,
+            },
+          ]}
+        >
+          <View style={styles.row}>
+            <Text style={[styles.rowLabel, { color: theme.text }]}>
+              Temperature
+            </Text>
+            <View style={styles.rowRight}>
+              <Text style={[styles.rowValue, { color: theme.subtext }]}>
+                {unit === "celsius" ? "°C" : "°F"}
               </Text>
-              <View style={styles.switch}>
-                <Text style={[styles.label, { color: theme.text }]}>
-                  {unit === "celsius" ? "°C" : "°F"}
-                </Text>
-                <Switch
-                  value={unit === "celsius"}
-                  onValueChange={handleTemp}
-                  thumbColor="white"
-                  trackColor={{ true: theme.text, false: theme.text }}
-                />
-              </View>
+              <Switch
+                value={unit === "celsius"}
+                onValueChange={handleTemp}
+                thumbColor="white"
+                trackColor={{ true: theme.subtext, false: theme.border }}
+              />
             </View>
-            <View
-              style={[
-                styles.switchContainer,
-                { backgroundColor: theme.cardBackground },
-              ]}
-            >
-              <Text style={[styles.label, { color: theme.text }]}>Clock</Text>
-              <View style={styles.switch}>
-                <Text style={[styles.label, { color: theme.text }]}>
-                  {clockFormat === "12h" ? "12h" : "24h"}
-                </Text>
-                <Switch
-                  value={clockFormat === "12h"}
-                  onValueChange={handleClock}
-                  thumbColor="white"
-                  trackColor={{ true: theme.text, false: theme.text }}
-                />
-              </View>
+          </View>
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+          <View style={styles.row}>
+            <Text style={[styles.rowLabel, { color: theme.text }]}>Clock</Text>
+            <View style={styles.rowRight}>
+              <Text style={[styles.rowValue, { color: theme.subtext }]}>
+                {clockFormat === "12h" ? "12h" : "24h"}
+              </Text>
+              <Switch
+                value={clockFormat === "12h"}
+                onValueChange={handleClock}
+                thumbColor="white"
+                trackColor={{ true: theme.subtext, false: theme.border }}
+              />
             </View>
           </View>
         </View>
-        <View>
-          {/*this is support section*/}
-          <Text style={[styles.subtitle, { color: theme.text }]}>Support</Text>
-          <Pressable
-            onPress={() => router.push("/about")}
-            style={[
-              styles.supportContainer,
-              { backgroundColor: theme.cardBackground },
-            ]}
-          >
-            <Text style={[styles.label, { color: theme.text }]}>About Us</Text>
-            <Entypo name="chevron-right" size={24} color={theme.text} />
-          </Pressable>
-          <Pressable
-            onPress={handleReport}
-            style={[
-              styles.supportContainer,
-              { backgroundColor: theme.cardBackground },
-            ]}
-          >
-            <Text style={[styles.label, { color: theme.text }]}>
-              Report An Issue
+
+        {/* Support section */}
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          Support
+        </Text>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.cardBackground,
+              borderColor: theme.border,
+            },
+          ]}
+        >
+          <Pressable style={styles.row} onPress={() => router.push("/about")}>
+            <Text style={[styles.rowLabel, { color: theme.text }]}>
+              About Us
             </Text>
-            <Entypo name="chevron-right" size={24} color={theme.text} />
+            <Entypo name="chevron-right" size={20} color={theme.subtext} />
+          </Pressable>
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+          <Pressable style={styles.row} onPress={handleReport}>
+            <Text style={[styles.rowLabel, { color: theme.text }]}>
+              Report an Issue
+            </Text>
+            <Entypo name="chevron-right" size={20} color={theme.subtext} />
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    flexDirection: "column",
     flex: 1,
   },
+  content: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    paddingTop: 16,
+  },
   title: {
-    fontSize: 35,
-    fontWeight: 700,
-    paddingVertical: 10,
+    fontSize: 32,
+    fontWeight: "700",
+    marginBottom: 24,
+    letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 25,
-    paddingVertical: 15,
-    fontWeight: 500,
-    marginTop: 10,
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    opacity: 0.6,
+    marginBottom: 8,
+    marginTop: 24,
+    marginLeft: 4,
   },
-  switchContainer: {
+  card: {
+    borderRadius: 16,
+    borderWidth: 0.5,
+    overflow: "hidden",
+  },
+  row: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginTop: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
-  switch: {
+  rowLabel: {
+    fontSize: 16,
+    fontWeight: "400",
+  },
+  rowRight: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
   },
-  label: {
-    fontSize: 18,
+  rowValue: {
+    fontSize: 15,
   },
-  supportContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginTop: 10,
-    paddingVertical: 10,
+  divider: {
+    height: 0.5,
+    marginLeft: 16,
   },
 });

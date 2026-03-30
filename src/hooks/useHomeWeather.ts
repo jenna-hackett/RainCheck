@@ -1,15 +1,23 @@
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { getCurrentLocation } from "../api/location";
+import { useEffect, useRef, useState } from "react";
+import { getCurrentLocation, getLocationName } from "../api/location";
 import { getWeather, WeatherData } from "../api/weatherApi";
 import { useSettings } from "../contexts/settingsContext";
 import { getWeatherCondition } from "../theme/theme";
 
 export function useHomeWeather() {
-  const { unit, selectedLocation, setWeatherCondition } = useSettings();
+  const {
+    unit,
+    selectedLocation,
+    setWeatherCondition,
+    setSelectedLocation,
+    setIsGPSLocation,
+    setGpsLocation,
+  } = useSettings();
   const [weather, setWeatherData] = useState<WeatherData | null>(null);
   const [locationName, setLocationName] = useState<string>("Loading...");
   const [loading, setLoading] = useState(true);
+  const hasAutoLoaded = useRef(false);
 
   useEffect(() => {
     async function loadWeather() {
@@ -22,9 +30,14 @@ export function useHomeWeather() {
         lat = selectedLocation.latitude;
         lon = selectedLocation.longitude;
         setLocationName(
-          `${selectedLocation.city}, ${selectedLocation.country}`,
+          selectedLocation.admin1
+            ? `${selectedLocation.city}, ${selectedLocation.admin1}, ${selectedLocation.country}`
+            : selectedLocation.country
+              ? `${selectedLocation.city}, ${selectedLocation.country}`
+              : selectedLocation.city,
         );
-      } else {
+      } else if (!hasAutoLoaded.current) {
+        hasAutoLoaded.current = true;
         const coords = await getCurrentLocation();
         if (!coords) {
           setLoading(false);
@@ -33,7 +46,23 @@ export function useHomeWeather() {
         }
         lat = coords.latitude;
         lon = coords.longitude;
-        setLocationName("Current Location");
+        const name = await getLocationName(lat, lon);
+        const gps = {
+          city: name,
+          country: "",
+          latitude: lat,
+          longitude: lon,
+        };
+        setIsGPSLocation(true);
+        setGpsLocation(gps);
+        setSelectedLocation(gps);
+        setLoading(false);
+        return;
+      } else {
+        setWeatherData(null);
+        setLocationName("No location");
+        setLoading(false);
+        return;
       }
 
       const data = await getWeather(lat, lon, unit);

@@ -1,5 +1,6 @@
 export type GeocodeResult = {
   city: string;
+  admin1?: string;
   country: string;
   latitude: number;
   longitude: number;
@@ -24,6 +25,7 @@ export async function geocodeCity(
 
     return data.results.map((item: any) => ({
       city: item.name,
+      admin1: item.admin1,
       country: item.country,
       latitude: item.latitude,
       longitude: item.longitude,

@@ -12,10 +12,14 @@ type SettingsContextType = {
   clockFormat: ClockFormat;
   weatherCondition: WeatherCondition;
   selectedLocation: GeocodeResult | null;
+  gpsLocation: GeocodeResult | null;
+  isGPSLocation: boolean;
   setUnit: (unit: Unit) => void;
   setClockFormat: (format: ClockFormat) => void;
   setWeatherCondition: (condition: WeatherCondition) => void;
   setSelectedLocation: (location: GeocodeResult | null) => void;
+  setGpsLocation: (location: GeocodeResult | null) => void;
+  setIsGPSLocation: (value: boolean) => void;
 };
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
@@ -32,6 +36,8 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     useState<WeatherCondition>(defaultCondition);
   const [selectedLocation, setSelectedLocation] =
     useState<GeocodeResult | null>(null);
+  const [gpsLocation, setGpsLocation] = useState<GeocodeResult | null>(null);
+  const [isGPSLocation, setIsGPSLocation] = useState<boolean>(false);
 
   useEffect(() => {
     async function loadSettings() {
@@ -66,10 +72,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         clockFormat,
         weatherCondition,
         selectedLocation,
+        gpsLocation,
+        isGPSLocation,
         setUnit,
         setClockFormat,
         setWeatherCondition,
         setSelectedLocation,
+        setGpsLocation,
+        setIsGPSLocation,
       }}
     >
       {children}
