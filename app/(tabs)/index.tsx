@@ -123,14 +123,18 @@ export default function HomeScreen() {
                 {formatTemp(Math.round(weather.daily.maxTemp[0]), unit)}
               </Text>
             </View>
-            <View style={styles.metaDivider} />
+            <View
+              style={[styles.metaDivider, { backgroundColor: theme.border }]}
+            />
             <View style={styles.metaItem}>
               <Ionicons name="arrow-down" size={14} color={theme.subtext} />
               <Text style={[styles.metaText, { color: theme.subtext }]}>
                 {formatTemp(Math.round(weather.daily.minTemp[0]), unit)}
               </Text>
             </View>
-            <View style={styles.metaDivider} />
+            <View
+              style={[styles.metaDivider, { backgroundColor: theme.border }]}
+            />
             <View style={styles.metaItem}>
               <Ionicons name="body-outline" size={14} color={theme.subtext} />
               <Text style={[styles.metaText, { color: theme.subtext }]}>
@@ -327,7 +331,6 @@ const styles = StyleSheet.create({
   metaDivider: {
     width: 1,
     height: 12,
-    backgroundColor: "rgba(255,255,255,0.2)",
   },
   sectionTitle: {
     fontSize: 13,
